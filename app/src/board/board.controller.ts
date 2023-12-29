@@ -17,34 +17,30 @@ export class BoardController {
   constructor(private readonly boardService: BoardService) {}
 
   @Post()
-  create(@Body() createBoardDto: CreateBoardDto): Promise<Board[]> {
-    return null;
+  async createOne(@Body() createBoardDto: CreateBoardDto): Promise<Board> {
+    return await this.boardService.createOne(createBoardDto);
   }
 
   @Get()
-  findAll(): Promise<Board> {
-    // return this.boardService.findAll();
-    return null;
+  findAll(): Promise<Board[]> {
+    return this.boardService.findAll();
   }
 
   @Get('/:id')
-  findOne(@Param('id') id: number): Promise<Board> {
-    // return this.boardService.findOne(+id);
-    return null;
+  async findOne(@Param('id') id: number): Promise<Board> {
+    return await this.boardService.findOne(+id);
   }
 
   @Patch('/:id/status')
-  update(
+  async updateOneBoardStatus(
     @Param('id') id: number,
     @Body() { status }: UpdateBoardStatusDto,
   ): Promise<Board> {
-    // return this.boardService.update(+id, updateBoardDto);
-    return null;
+    return await this.boardService.updateOneBoardStatus(id, status);
   }
 
   @Delete('/:id')
-  remove(@Param('id') id: number): Promise<void> {
-    // return this.boardService.remove(+id);
-    return null;
+  async remove(@Param('id') id: number): Promise<void> {
+    return this.boardService.removeOne(id);
   }
 }
