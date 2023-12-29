@@ -12,12 +12,11 @@ export class BoardRepository extends Repository<Board> {
 
   async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
     const { title, description } = createBoardDto;
-    const board = Board.create({
+
+    return await Board.create({
       title,
       description,
       status: BoardStatus.PUBLIC,
-    });
-
-    return await this.save(board);
+    }).save();
   }
 }
