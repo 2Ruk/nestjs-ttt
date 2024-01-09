@@ -4,8 +4,13 @@ import { HttpExceptionFilter } from '@api/library/filter/http-exception.filter';
 import { LoggingInterceptor } from '@api/library/interceptor/logger.interceptor';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { TimeoutInterceptor } from '@api/library/interceptor/time-ouut.interceptor';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
+  // NOTE: 나중에는 ENV로 관리할 수 있도록 한다.
+  const HTTP_DOMAIN = 'http://localhost:3000';
+  const PORT = 3000;
+
   const app = await NestFactory.create(AppModule);
 
   // Note: 모든 요청에 대해 /api로 시작하는 경로로 요청이 들어오면 라우터를 타도록 한다.
@@ -27,6 +32,14 @@ async function bootstrap() {
   // Note: 일정 시간이 지나도록 응답이 없으면 요청을 취소하고 에러를 발생시킨다.
   app.useGlobalInterceptors(new TimeoutInterceptor());
 
-  await app.listen(3000);
+  // Note: cookie를 사용하기 위해 설정한다.
+  app.use(cookieParser());
+
+  app.enableCors({
+    origin: [HTTP_DOMAIN],
+    credentials: true,
+  });
+
+  await app.listen(PORT);
 }
 bootstrap();
