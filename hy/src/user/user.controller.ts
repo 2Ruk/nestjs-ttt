@@ -1,25 +1,61 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { JwtGuard } from '@api/auth/jwt.guard';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  private readonly cookieName: string;
+  constructor(
+    private readonly userService: UserService,
+    private readonly configService: ConfigService,
+  ) {
+    this.cookieName = this.configService.get('COOKIE_SECRET');
+  }
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @Post('sign-up')
+  async create(
+    @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const token = await this.userService.create(createUserDto);
+    response.cookie(this.cookieName, token, {
+      httpOnly: true,
+      domain: this.configService.get<string>('COOKIE_DOMAIN'),
+      maxAge: this.configService.get<number>('COOKIE_EXPIRES'),
+    });
+
+    return {
+      result: true,
+    };
+    // return this.userService.create(createUserDto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('sign-in')
+  findOne(@Param('id') id: string) {
+    // return this.userService.findOne(+id);
+    return {
+      result: true,
+    };
   }
 
   @Get()
   findAll() {
     return this.userService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
   }
 
   @Patch(':id')

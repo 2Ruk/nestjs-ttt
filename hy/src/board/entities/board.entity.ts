@@ -2,13 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { BoardStatus } from '@api/user/enum/board.status.enum';
 import { User } from '@api/user/entities/user.entity';
-import { JoinColumn } from 'typeorm/browser';
 
 @Entity()
 export class Board {

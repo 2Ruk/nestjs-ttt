@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthService } from '@api/auth/auth.service';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(private readonly authService: AuthService) {}
+  async create(createUserDto: CreateUserDto) {
+    return this.authService.signJWT({
+      userName: createUserDto.userName,
+      id: 1,
+    });
   }
 
   findAll() {

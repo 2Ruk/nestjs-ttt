@@ -11,6 +11,7 @@ import { DbConfig } from '@api/library/config/db.config';
   imports: [
     ConfigModule.forRoot({
       envFilePath: ['.env.local'],
+      isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
