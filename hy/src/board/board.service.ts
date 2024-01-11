@@ -1,26 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
+import { BoardRepository } from '@api/board/board.repository';
+import { Board } from '@api/board/entities/board.entity';
+import { BoardStatus } from '@api/user/enum/board.status.enum';
 
 @Injectable()
 export class BoardService {
-  create(createBoardDto: CreateBoardDto) {
-    return 'This action adds a new board';
+  constructor(private readonly boardRepository: BoardRepository) {}
+  async create(userId: number, createBoardDto: CreateBoardDto) {
+    const board = Board.create({
+      ...createBoardDto,
+      status: BoardStatus.PUBLIC,
+      user: {
+        id: userId,
+      },
+    });
+    await this.boardRepository.save(board);
   }
 
-  findAll() {
-    return `This action returns all board`;
+  async findAll() {
+    try {
+      return await this.boardRepository
+        .createQueryBuilder('board')
+        .where('board.user_id IS NOT NULL')
+        .innerJoinAndSelect('board.user', 'user')
+        .getMany();
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException('게시글을 불러오는데 실패하였습니다.');
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} board`;
-  }
+  async findOne(id: number) {
+    const book = await this.boardRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!book) {
+      throw new BadRequestException('존재하지 않는 게시글입니다.');
+    }
 
-  update(id: number, updateBoardDto: UpdateBoardDto) {
-    return `This action updates a #${id} board`;
+    return book;
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} board`;
+  async findAllMyBoard(userId: number) {
+    return await this.boardRepository.findAllMyBoard(userId);
   }
 }
