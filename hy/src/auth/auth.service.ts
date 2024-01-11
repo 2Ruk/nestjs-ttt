@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
-interface UserJwtPayload {
+export interface UserJwtPayload {
   id: number;
   userName: string;
 }
@@ -21,5 +22,19 @@ export class AuthService {
       },
     );
     return token;
+  }
+
+  // NOTE: 암호와 관련된 권한은 Auth 모듈에 있어야 한다.
+  async hashPassword(password: string): Promise<string> {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return hashedPassword;
+  }
+
+  async comparePassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    const isPasswordValid = await bcrypt.compare(password, hashedPassword);
+    return isPasswordValid;
   }
 }

@@ -9,13 +9,13 @@ import {
 /**
  * HttpException Catch: NestJS에서는 예외 처리를 위해 Exception Filter를 사용한다.
  */
-@Catch(HttpException)
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    const status = exception.getStatus();
+    const status = exception.getStatus() || 500;
 
     response.status(status).json({
       statusCode: status,
